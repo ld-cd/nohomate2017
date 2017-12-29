@@ -35,8 +35,19 @@ MOTOR_MIN = 45 # 800
 MOTOR_MAX = 90 # 2000
 SEVEN_HUNDRED = 35 # 700
 
+STEPS = 5
+STEP_LENGTH = 0.05
+
 dontbreakdontbreak_horiz = Lock()
 dontbreakdontbreak_vert = Lock()
+def active_spinup(pin, final_speed, steps, step_length):
+    step_size = (final_speed - SEVEN_HUNDRED) / steps
+    current = SEVEN_HUNDRED
+    while current < final_speed:
+        time.sleep(step_length)
+        current += step_size
+        PWM.set_duty_cycle(pin, current)
+    print "spinup complete"
 def enable_servos(pin = "*"):
     if pin == "*":
         enable_servos("GR")
@@ -96,14 +107,18 @@ def set_speed(percent, pin):
         if percent < 0:
             if LH == True:
                 PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
+                GPIO.output(LH_RELAYS[0], GPIO.LOW)
+                GPIO.output(LH_RELAYS[1], GPIO.LOW)
+                active_spinup(floof, (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN, STEPS, STEP_LENGTH)
             GPIO.output(LH_RELAYS[0], GPIO.LOW)
             GPIO.output(LH_RELAYS[1], GPIO.LOW)
             LH = False
         else:
             if LH == False:
                 PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
+                GPIO.output(LH_RELAYS[1], GPIO.HIGH)
+                GPIO.output(LH_RELAYS[0], GPIO.HIGH)
+                active_spinup(floof, (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN, STEPS, STEP_LENGTH)
             GPIO.output(LH_RELAYS[1], GPIO.HIGH)
             GPIO.output(LH_RELAYS[0], GPIO.HIGH)
             LH = True
@@ -112,14 +127,18 @@ def set_speed(percent, pin):
         if percent < 0:
             if RH == True:
                 PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
+                GPIO.output(RH_RELAYS[0], GPIO.LOW)
+                GPIO.output(RH_RELAYS[1], GPIO.LOW)
+                active_spinup(floof, (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN, STEPS, STEP_LENGTH)
             GPIO.output(RH_RELAYS[0], GPIO.LOW)
             GPIO.output(RH_RELAYS[1], GPIO.LOW)
             RH = False
         else:
             if RH == False:
                 PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
+                GPIO.output(RH_RELAYS[1], GPIO.HIGH)
+                GPIO.output(RH_RELAYS[0], GPIO.HIGH)
+                active_spinup(floof, (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN, STEPS, STEP_LENGTH)
             GPIO.output(RH_RELAYS[1], GPIO.HIGH)
             GPIO.output(RH_RELAYS[0], GPIO.HIGH)
             RH = True
@@ -128,14 +147,18 @@ def set_speed(percent, pin):
         if percent < 0:
             if LV == True:
                 PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
+                GPIO.output(LV_RELAYS[0], GPIO.LOW)
+                GPIO.output(LV_RELAYS[1], GPIO.LOW)
+                active_spinup(floof, (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN, STEPS, STEP_LENGTH)
             GPIO.output(LV_RELAYS[0], GPIO.LOW)
             GPIO.output(LV_RELAYS[1], GPIO.LOW)
             LV = False
         else:
             if LV == False:
                 PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
+                GPIO.output(LV_RELAYS[1], GPIO.HIGH)
+                GPIO.output(LV_RELAYS[0], GPIO.HIGH)
+                active_spinup(floof, (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN, STEPS, STEP_LENGTH)
             GPIO.output(LV_RELAYS[1], GPIO.HIGH)
             GPIO.output(LV_RELAYS[0], GPIO.HIGH)
             LV = True
@@ -144,33 +167,22 @@ def set_speed(percent, pin):
         if percent < 0:
             if RV == True:
                 PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
+                GPIO.output(RV_RELAYS[0], GPIO.LOW)
+                GPIO.output(RV_RELAYS[1], GPIO.LOW)
+                active_spinup(floof, (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN, STEPS, STEP_LENGTH)
             GPIO.output(RV_RELAYS[0], GPIO.LOW)
             GPIO.output(RV_RELAYS[1], GPIO.LOW)
             RV = False
         else:
-            if LV == False:
+            if RV == False:
                 PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
+                GPIO.output(RV_RELAYS[1], GPIO.HIGH)
+                GPIO.output(RV_RELAYS[0], GPIO.HIGH)
+                active_spinup(floof, (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN, STEPS, STEP_LENGTH)
             GPIO.output(RV_RELAYS[1], GPIO.HIGH)
             GPIO.output(RV_RELAYS[0], GPIO.HIGH)
             RV = True
-    else:
-        floof = LH_PIN
-        if percent < 0:
-            if LH == True:
-                PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
-            GPIO.output(LH_RELAYS[0], GPIO.LOW)
-            GPIO.output(LH_RELAYS[1], GPIO.LOW)
-            LH = False
-        else:
-            if LH == False:
-                PWM.set_duty_cycle(floof, SEVEN_HUNDRED)
-                time.sleep(SPINDOWN)
-            GPIO.output(LH_RELAYS[1], GPIO.HIGH)
-            GPIO.output(LH_RELAYS[0], GPIO.HIGH)
-            LH = True
+    
     print (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN
     PWM.set_duty_cycle(floof, (abs(float(percent)) / 100) *  (MOTOR_MAX - MOTOR_MIN) + MOTOR_MIN)
 
@@ -199,7 +211,7 @@ def up(percent):
     t2.join()
 
 def rovexec(floof):
-    horiz = False
+    horix = False
     vert = False
     stime = time.time()
     print floof
